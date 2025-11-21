@@ -1,0 +1,215 @@
+groups:
+  - name: application_logs
+    interval: 1m
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          sum(rate({service="backend", level="ERROR"}[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "High error rate detected in backend"
+          description: "Backend is producing more than 10 errors per second for the last 5 minutes"
+
+      - alert: CriticalErrors
+        expr: |
+          count_over_time({service="backend", level="ERROR"} |~ "(?i)(database|connection|timeout)" [5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: backend
+        annotations:
+          summary: "Critical errors detected in backend"
+          description: "Backend has critical errors related to database, connection, or timeout"
+
+      - alert: HighServerErrors
+        expr: |
+          sum(rate({service="backend", event_type="http_request", status_code=~"5.."} [5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "High rate of HTTP 5xx errors"
+          description: "Backend is returning more than 5 HTTP 5xx errors per second"
+
+      - alert: NoLogsReceived
+        expr: |
+          sum(count_over_time({service="backend"}[10m])) == 0
+        for: 10m
+        labels:
+          severity: critical
+          service: backend
+        annotations:
+          summary: "No logs received from backend"
+          description: "Backend has not produced any logs in the last 10 minutes. Service might be down."
+
+      - alert: SlowAPIResponses
+        expr: |
+          avg_over_time(
+            {service="backend", event_type="http_request"} 
+            | json 
+            | unwrap duration_ms [5m]
+          ) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "API responses are slow"
+          description: "Average API response time is over 1 second for the last 5 minutes"
+
+      - alert: FrontendErrors
+        expr: |
+          sum(rate({service="frontend", level="ERROR"}[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+          service: frontend
+        annotations:
+          summary: "High error rate in frontend"
+          description: "Frontend is producing more than 5 errors per second"
+
+      - alert: DatabaseConnectionErrors
+        expr: |
+          count_over_time({service="database"} |~ "(?i)(connection refused|timeout)" [5m]) > 0
+        for: 2m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "Database connection issues detected"
+          description: "Database is experiencing connection problems"
+
+  - name: external_api_alerts
+    interval: 1m
+    rules:
+      - alert: FNSAPIErrors
+        expr: |
+          count_over_time({service="backend", level="ERROR"} |~ "(?i)(FNS API|ФНС)" [5m]) > 3
+        for: 2m
+        labels:
+          severity: critical
+          service: backend
+          api: fns
+        annotations:
+          summary: "FNS API errors detected"
+          description: "More than 3 FNS API errors in the last 5 minutes"
+
+      - alert: FNSAPIForbidden
+        expr: |
+          count_over_time({service="backend"} |~ "(?i)(403|forbidden|API key may be blocked)" [10m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: backend
+          api: fns
+        annotations:
+          summary: "FNS API access forbidden (403)"
+          description: "FNS API key may be blocked or expired"
+
+      - alert: FNSAPISlowResponse
+        expr: |
+          count_over_time({service="backend"} |~ "(?i)(FNS API.*timeout|Ошибка подключения к API ФНС)" [5m]) > 2
+        for: 3m
+        labels:
+          severity: warning
+          service: backend
+          api: fns
+        annotations:
+          summary: "FNS API slow or timing out"
+          description: "FNS API is experiencing timeout issues"
+
+  - name: etl_alerts
+    interval: 1m
+    rules:
+      - alert: ETLJobFailed
+        expr: |
+          count_over_time({service="etl", level="ERROR"} [15m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: etl
+        annotations:
+          summary: "ETL job failed"
+          description: "ETL process encountered errors during data loading"
+
+      - alert: ETLNoActivity
+        expr: |
+          sum(count_over_time({service="etl"}[1h])) == 0
+        for: 2h
+        labels:
+          severity: warning
+          service: etl
+        annotations:
+          summary: "No ETL activity detected"
+          description: "ETL process has not produced logs in the last 2 hours"
+
+      - alert: ETLJobFailed
+        expr: |
+          count_over_time({service="etl", event_type="etl_job_failed"} [1h]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: etl
+        annotations:
+          summary: "ETL job failed"
+          description: "ETL job has failed in the last hour"
+
+      - alert: ETLHighMemoryUsage
+        expr: |
+          etl_memory_usage_bytes > 2e9
+        for: 5m
+        labels:
+          severity: warning
+          service: etl
+        annotations:
+          summary: "ETL high memory usage"
+          description: "ETL process is using more than 2GB of memory"
+
+      - alert: ETLHighCPUUsage
+        expr: |
+          etl_cpu_usage_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: etl
+        annotations:
+          summary: "ETL high CPU usage"
+          description: "ETL process is using more than 80% CPU"
+
+      - alert: ETLSlowProcessing
+        expr: |
+          histogram_quantile(0.95, rate(etl_processing_duration_seconds_bucket[5m])) > 10
+        for: 3m
+        labels:
+          severity: warning
+          service: etl
+        annotations:
+          summary: "ETL slow processing"
+          description: "ETL processing is taking more than 10 seconds for 95% of requests"
+
+      - alert: ETLHighErrorRate
+        expr: |
+          rate(etl_errors_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          service: etl
+        annotations:
+          summary: "ETL high error rate"
+          description: "ETL error rate is higher than 0.1 errors per second"
+
+      - alert: ETLQueueBacklog
+        expr: |
+          etl_queue_size > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: etl
+        annotations:
+          summary: "ETL queue backlog"
+          description: "ETL processing queue has more than 100 items"
+

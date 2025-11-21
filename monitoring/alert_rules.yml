@@ -1,0 +1,127 @@
+# DEPRECATED: Этот файл заменен на grafana-alerts.yml
+# Используйте grafana-alerts.yml для новых алертов
+groups:
+  - name: backend_alerts
+    rules:
+      - alert: BackendDown
+        expr: up{job="backend-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend API недоступен"
+          description: "Backend API не отвечает более 1 минуты"
+
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокое время ответа API"
+          description: "95% запросов обрабатываются дольше 1 секунды"
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокий уровень ошибок"
+          description: "Более 10% запросов завершаются с ошибкой 5xx"
+
+  - name: system_alerts
+    rules:
+      - alert: HighCpuUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокое использование CPU"
+          description: "CPU использование выше 80% в течение 5 минут"
+
+      - alert: LowMemory
+        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 10
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Мало свободной памяти"
+          description: "Свободной памяти менее 10%"
+
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 10
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Мало места на диске"
+          description: "Свободного места на диске менее 10%"
+
+  - name: etl_alerts
+    rules:
+      - alert: ETLDown
+        expr: up{job="etl-scheduler"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "ETL Scheduler недоступен"
+          description: "ETL Scheduler не отвечает более 1 минуты"
+
+      - alert: ETLHighErrorRate
+        expr: rate(etl_requests_total{status="error"}[5m]) / rate(etl_requests_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокий уровень ошибок ETL"
+          description: "Более 10% ETL запросов завершаются с ошибкой"
+
+      - alert: ETLSlowProcessing
+        expr: histogram_quantile(0.95, rate(etl_request_duration_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Медленная обработка ETL"
+          description: "95% ETL запросов обрабатываются дольше 5 секунд"
+
+      - alert: ETLAPILimitExceeded
+        expr: rate(etl_api_403_errors_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Превышение лимитов FNS API"
+          description: "Слишком много ошибок 403 от FNS API"
+
+  - name: container_alerts
+    rules:
+      - alert: ContainerDown
+        expr: up{job=~".*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Контейнер недоступен"
+          description: "Контейнер {{ $labels.job }} не отвечает"
+
+      - alert: ContainerHighMemory
+        expr: container_memory_usage_bytes / container_spec_memory_limit_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокое использование памяти контейнера"
+          description: "Контейнер {{ $labels.name }} использует более 80% памяти"
+
+      - alert: ContainerHighCPU
+        expr: rate(container_cpu_usage_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокое использование CPU контейнера"
+          description: "Контейнер {{ $labels.name }} использует более 80% CPU"

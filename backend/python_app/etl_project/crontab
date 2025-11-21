@@ -1,0 +1,4 @@
+5 * * * * cd /app && python load_fns_data.py >> /var/log/cron.log 2>&1
+0 2 * * * cd /app && python etl_scripts/insert_real_data_from_json.py >> /var/log/cron.log 2>&1
+*/30 * * * * cd /app && python scripts/health_check.py >> /var/log/cron.log 2>&1
+*/15 * * * * cd /app && python scripts/api_monitor.py >> /var/log/cron.log 2>&1

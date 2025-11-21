@@ -1,0 +1,32 @@
+# Исключаем ненужные файлы из Docker контекста
+node_modules
+.next
+.git
+.gitignore
+README.md
+.env*
+*.log
+*.tmp
+*.temp
+.vscode
+.idea
+coverage
+.nyc_output
+dist
+build
+out
+.turbo
+.vercel
+
+# Исключаем тестовые файлы
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+__tests__
+jest.config.js
+jest.setup.js
+
+# Исключаем документацию
+*.md
+docs/

@@ -1,0 +1,5 @@
+[33m25bffdee[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m t status t merge --continue Mero "checking git status" e branch 'main' of https://github.com/shapolaxx/mpv
+[33me714849b[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge pull request #23 from shapolaxx/backend
+[33mce95f72e[m Fix alerts: Prometheus -> Alertmanager -> Telegram webhook working correctly
+[33m898bb9d1[m астройка алертов для существующих метрик Grafana
+[33m79dea10a[m справлены проблемы с алертами: убран jq из команд, исправлен webhook для обработки алертов, увеличены интервалы для предотвращения спама, удален тестовый алерт

@@ -1,0 +1,24 @@
+[
+    {
+        "inn": "7707083893",
+        "ogrn": "1027700132195",
+        "company_name": "Публичное акционерное общество \"Сбербанк России\"",
+        "general_director": "Греф Герман Оскарович",
+        "founders": [
+            "РАСЧЕТНО-КАССОВЫЙ ЦЕНТР Г ДЯТЬКОВО ГУ ЦБ БРЯН ОБЛ (7702235133)"
+        ],
+        "revenue": null,
+        "profit": null,
+        "employees_count": null,
+        "activity": {
+            "code": "64.19",
+            "desc": "Денежное посредничество прочее"
+        },
+        "contacts": {
+            "phone": "+7 (495) 974-73-87",
+            "email": null,
+            "website": "http://www.sberbank.ru"
+        },
+        "court_cases": null
+    }
+]

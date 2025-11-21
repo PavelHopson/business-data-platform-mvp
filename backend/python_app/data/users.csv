@@ -1,0 +1,4 @@
+id,email,inn,password_hash,role,created_at
+1,test@example.com,1234567890,$2b$12$4Lc9iBuoDmj0V...,user,2025-09-29 11:58:40
+2,test2@example.com,9876543210,$2b$12$dqfW7m8USq/nG...,user,2025-09-29 12:03:16
+

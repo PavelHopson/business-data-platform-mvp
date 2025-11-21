@@ -1,0 +1,119 @@
+# Grafana Alert Rules Configuration
+# Алерты для существующих метрик в дашбордах
+
+groups:
+  - name: system_alerts
+    rules:
+      # CPU алерт
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "Высокое использование CPU"
+          description: "CPU usage is above 80% for more than 5 minutes on {{ $labels.instance }}"
+          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/"
+
+      # Memory алерт
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "Высокое использование памяти"
+          description: "Memory usage is above 85% for more than 5 minutes on {{ $labels.instance }}"
+          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/"
+
+      # Disk алерт
+      - alert: HighDiskUsage
+        expr: 100 - (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"} * 100) > 90
+        for: 5m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "Высокое использование диска"
+          description: "Disk usage is above 90% for more than 5 minutes on {{ $labels.instance }}"
+          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/"
+
+  - name: backend_alerts
+    rules:
+      # Backend доступность
+      - alert: BackendDown
+        expr: up{job="backend-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: backend
+        annotations:
+          summary: "Backend недоступен"
+          description: "Backend API is down for more than 1 minute"
+          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/"
+
+      # Высокий уровень ошибок
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "Высокий уровень ошибок"
+          description: "Error rate is above 10% for more than 2 minutes"
+          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/"
+
+  - name: etl_alerts
+    rules:
+      # ETL производительность
+      - alert: LowETLSuccessRate
+        expr: rate(etl_requests_total{status="success"}[5m]) / rate(etl_requests_total[5m]) < 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: etl
+        annotations:
+          summary: "Низкая успешность ETL"
+          description: "ETL success rate is below 90% for more than 5 minutes"
+          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/"
+
+      # ETL задержка
+      - alert: HighETLLatency
+        expr: histogram_quantile(0.95, rate(etl_request_duration_seconds_bucket[5m])) > 30
+        for: 5m
+        labels:
+          severity: warning
+          service: etl
+        annotations:
+          summary: "Высокий уровень ошибок в логах"
+          description: "ETL 95th percentile latency is above 30 seconds for more than 5 minutes"
+          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/"
+
+  - name: log_alerts
+    rules:
+      # Высокий уровень ошибок в логах
+      - alert: HighErrorLogRate
+        expr: rate(logs_total{level="error"}[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          service: logging
+        annotations:
+          summary: "Высокий уровень ошибок в логах"
+          description: "Error log rate is above 10 logs/minute for more than 2 minutes"
+          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/"
+
+      # Критический уровень ошибок
+      - alert: CriticalErrorLogRate
+        expr: rate(logs_total{level="error"}[5m]) > 50
+        for: 1m
+        labels:
+          severity: critical
+          service: logging
+        annotations:
+          summary: "Критический уровень ошибок в логах"
+          description: "Error log rate is above 50 logs/minute for more than 1 minute"
+          runbook_url: "https://grafana.com/docs/grafana/latest/alerting/"

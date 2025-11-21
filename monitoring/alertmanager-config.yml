@@ -1,0 +1,40 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+  receiver: 'telegram-notifications'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'telegram-critical'
+      continue: true
+    - match:
+        severity: warning
+      receiver: 'telegram-notifications'
+
+receivers:
+  - name: 'telegram-notifications'
+    webhook_configs:
+      - url: 'http://backend:8000/api/internal/webhook/telegram'
+        send_resolved: true
+        http_config:
+          follow_redirects: true
+
+  - name: 'telegram-critical'
+    webhook_configs:
+      - url: 'http://backend:8000/api/internal/webhook/telegram'
+        send_resolved: true
+        http_config:
+          follow_redirects: true
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service']
+

@@ -1,0 +1,321 @@
+name: Complete CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+env:
+  SERVER_IP: ${{ secrets.SERVER_IP }}
+  SERVER_USER: ${{ secrets.SERVER_USER }}
+  SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+
+jobs:
+  lint-and-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python (backend)
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install backend dependencies
+        run: |
+          cd backend/python_app
+          pip install -r requirements.txt
+          pip install black flake8 mypy pytest-cov
+
+      - name: Auto-format with Black
+        run: |
+          cd backend/python_app
+          black app/ --line-length=88
+          echo "✅ Code formatted with Black"
+
+      - name: Lint backend with flake8
+        run: |
+          cd backend/python_app
+          python -m flake8 app/ --max-line-length=88 --ignore=E203,W503
+
+      - name: Type check with mypy
+        run: |
+          cd backend/python_app
+          python -m mypy app/ --ignore-missing-imports
+
+      - name: Set up Node.js (frontend)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend/business-analysis-service
+          npm install 
+
+      - name: Lint frontend
+        run: |
+          cd frontend/business-analysis-service
+          npm run lint --if-present
+
+      - name: Typecheck frontend
+        run: |
+          cd frontend/business-analysis-service
+          npm run type-check --if-present
+
+  build-and-test:
+    needs: lint-and-typecheck
+    runs-on: ubuntu-latest
+    if: needs.lint-and-typecheck.result == 'success'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python (backend)
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install backend dependencies
+        run: |
+          cd backend/python_app
+          pip install -r requirements.txt
+          pip install black flake8 mypy pytest-cov
+
+      - name: Set up Node.js (frontend)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend/business-analysis-service
+          npm install
+
+      - name: Check for backend Dockerfile
+        run: |
+          if [ ! -f "backend/python_app/Dockerfile" ]; then
+            echo "❌ Backend Dockerfile not found!"
+            exit 1
+          fi
+          echo "✅ Backend Dockerfile found"
+
+      - name: Build backend Docker image
+        run: |
+          cd backend/python_app
+          docker build -t backend-app .
+        continue-on-error: false
+
+      - name: Check for frontend Dockerfile
+        run: |
+          if [ ! -f "frontend/Dockerfile" ]; then
+            echo "❌ Frontend Dockerfile not found!"
+            exit 1
+          fi
+          echo "✅ Frontend Dockerfile found"
+
+      - name: Build frontend Docker image
+        run: |
+          cd frontend
+          docker build -t frontend-app .
+        continue-on-error: false
+
+      - name: Test backend container with diagnostics
+        run: |
+          echo "🧪 Testing backend container..."
+          # Запускаем контейнер с переменными окружения для тестирования
+          docker run --rm -d --name backend-test -p 8000:8000 \
+            -e DATABASE_URL=sqlite:///./test.db \
+            -e SECRET_KEY=test-secret-key \
+            -e DEBUG=true \
+            backend-app
+          
+          # Ждем запуска и проверяем статус
+          sleep 15
+          echo "📋 Backend container status:"
+          docker ps | grep backend-test || echo "❌ Container not running"
+          
+          echo "📋 Backend container logs:"
+          docker logs backend-test
+          
+          # Проверяем, что контейнер запущен
+          if ! docker ps | grep backend-test; then
+            echo "❌ Backend container failed to start"
+            docker logs backend-test
+            exit 1
+          fi
+          
+          # Пробуем несколько раз подключиться
+          echo "🔍 Testing backend connectivity..."
+          for i in {1..5}; do
+            echo "⏳ Attempt $i/5..."
+            if curl -f http://localhost:8000/health; then
+              echo "✅ Backend health check passed"
+              break
+            else
+              echo "❌ Attempt $i failed"
+              if [ $i -eq 5 ]; then
+                echo "❌ All attempts failed"
+                docker logs backend-test
+                exit 1
+              fi
+              sleep 5
+            fi
+          done
+          
+          docker stop backend-test
+
+      - name: Test frontend container with diagnostics
+        run: |
+          echo "🧪 Testing frontend container..."
+          docker run --rm -d --name frontend-test -p 3000:3000 frontend-app
+          
+          # Ждем запуска и проверяем статус
+          sleep 20
+          echo "📋 Frontend container status:"
+          docker ps | grep frontend-test || echo "❌ Container not running"
+          
+          echo "📋 Frontend container logs:"
+          docker logs frontend-test
+          
+          # Проверяем, что контейнер запущен
+          if ! docker ps | grep frontend-test; then
+            echo "❌ Frontend container failed to start"
+            docker logs frontend-test
+            exit 1
+          fi
+          
+          # Пробуем несколько раз подключиться
+          echo "🔍 Testing frontend connectivity..."
+          for i in {1..5}; do
+            echo "⏳ Attempt $i/5..."
+            if curl -f http://localhost:3000/; then
+              echo "✅ Frontend accessibility test passed"
+              break
+            else
+              echo "❌ Attempt $i failed"
+              if [ $i -eq 5 ]; then
+                echo "❌ All attempts failed"
+                docker logs frontend-test
+                exit 1
+              fi
+              sleep 5
+            fi
+          done
+          
+          docker stop frontend-test
+
+      - name: Check for backend tests
+        run: |
+          if [ ! -d "backend/python_app/tests" ] || [ ! "$(ls -A backend/python_app/tests)" ]; then
+            echo "⚠️ No backend tests found, skipping..."
+            echo "SKIP_BACKEND_TESTS=true" >> $GITHUB_ENV
+          else
+            echo "✅ Backend tests found"
+            echo "SKIP_BACKEND_TESTS=false" >> $GITHUB_ENV
+          fi
+
+      - name: Run backend unit tests
+        if: env.SKIP_BACKEND_TESTS == 'false'
+        env:
+          DATABASE_URL: sqlite:///./test.db
+          SECRET_KEY: test-secret-key
+          DEBUG: "true"
+        run: |
+          cd backend/python_app
+          python -m pytest tests/ -v --cov=app --cov-report=xml
+
+      - name: Check for frontend tests
+        run: |
+          if [ ! -f "frontend/business-analysis-service/package.json" ] || ! grep -q '"test"' frontend/business-analysis-service/package.json; then
+            echo "⚠️ No frontend tests found, skipping..."
+            echo "SKIP_FRONTEND_TESTS=true" >> $GITHUB_ENV
+          else
+            echo "✅ Frontend tests found"
+            echo "SKIP_FRONTEND_TESTS=false" >> $GITHUB_ENV
+          fi
+
+      - name: Run frontend unit tests
+        if: env.SKIP_FRONTEND_TESTS == 'false'
+        run: |
+          cd frontend/business-analysis-service
+          npm test -- --coverage --watchAll=false --passWithNoTests
+
+  deploy-to-staging:
+    needs: [build-and-test]
+    runs-on: ubuntu-latest
+    if: needs.build-and-test.result == 'success'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Add SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SERVER_SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Add server to known_hosts
+        run: |
+          ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
+
+      - name: Prepare server directory
+        run: |
+          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "
+            mkdir -p /var/www/deployer/myapp &&
+            cd /var/www/deployer/myapp &&
+            find . -maxdepth 1 -not -name '.' -not -name '..' -exec rm -rf {} + 2>/dev/null || true
+          "
+
+      - name: Check for docker-compose.yml
+        run: |
+          if [ ! -f "docker-compose.yml" ]; then
+            echo "❌ docker-compose.yml not found!"
+            exit 1
+          fi
+          echo "✅ docker-compose.yml found"
+
+      - name: Deploy files via rsync
+        run: |
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='dist' \
+            --exclude='build' \
+            --exclude='coverage' \
+            --exclude='.github' \
+            --exclude='*.log' \
+            --exclude='.DS_Store' \
+            --exclude='Thumbs.db' \
+            . $SERVER_USER@$SERVER_IP:/var/www/deployer/myapp/
+
+      - name: Start application
+        run: |
+          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "
+            cd /var/www/deployer/myapp &&
+            docker compose down &&
+            docker compose pull &&
+            docker compose up -d &&
+            echo '✅ Deployment complete!'
+          "
+
+      - name: Verify deployment
+        run: |
+          echo "🔍 Verifying deployment..."
+          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "
+            cd /var/www/deployer/myapp &&
+            if docker compose ps | grep -q 'Up'; then
+              echo '✅ Application is running successfully!'
+            else
+              echo '❌ Application failed to start!'
+              docker compose ps
+              exit 1
+            fi
+          "
