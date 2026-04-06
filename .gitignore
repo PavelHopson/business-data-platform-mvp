@@ -35,6 +35,13 @@ Thumbs.db
 .env.test.local
 .env.production.local
 
+# .NET
+obj/
+bin/
+
+# Next.js
+.next/
+
 # Logs
 *.log
 npm-debug.log*

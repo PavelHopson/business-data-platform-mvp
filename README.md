@@ -61,7 +61,7 @@ make load-test-full      # Полный цикл тестирования
 make monitoring   # Запуск мониторинга
 ```
 
-**Grafana**: http://91.218.230.151:3002 (admin/xWRd2ttyUxdAC@)
+**Grafana**: http://your_server_ip:3002 (admin/your_grafana_password)
 - Дашборд "ETL Monitoring" - статус парсинга
 - Дашборд "ETL Performance" - метрики производительности
 - Логи ETL: `{service="etl"}`
@@ -75,16 +75,16 @@ make monitoring   # Запуск мониторинга
 ```
 
 **Prometheus Metrics**:
-- ETL метрики: http://91.218.230.151:8002/metrics
+- ETL метрики: http://your_server_ip:8002/metrics
 - Производительность: `etl_companies_processed_total`
 - Ресурсы: `etl_memory_usage_bytes`, `etl_cpu_usage_percent`
 
 ## 📊 Мониторинг
 
-- **Grafana**: http://91.218.230.151:3002 (admin/xWRd2ttyUxdAC@)
-- **Prometheus**: http://91.218.230.151:9090
-- **Loki**: http://91.218.230.151:3100
-- **Alertmanager**: http://91.218.230.151:9093
+- **Grafana**: http://your_server_ip:3002 (admin/your_grafana_password)
+- **Prometheus**: http://your_server_ip:9090
+- **Loki**: http://your_server_ip:3100
+- **Alertmanager**: http://your_server_ip:9093
 
 ## 🚨 Алерты
 
@@ -97,8 +97,8 @@ make monitoring   # Запуск мониторинга
 ### Telegram уведомления:
 Настройте в `.env`:
 ```env
-TELEGRAM_BOT_TOKEN=7900245095:AAGGV1LntnHPjuid26UCPGB0bmwW_-KwvsI
-TELEGRAM_CHAT_ID=-1003055636021
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
 TELEGRAM_ALERTS_ENABLED=true
 ```
 
@@ -118,13 +118,13 @@ POSTGRES_DB=myapp_dev
 POSTGRES_USER=devuser
 POSTGRES_PASSWORD=devpass
 FNS_API_KEY=your_api_key
-TELEGRAM_BOT_TOKEN=7900245095:AAGGV1LntnHPjuid26UCPGB0bmwW_-KwvsI
-TELEGRAM_CHAT_ID=-1003055636021
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
 TELEGRAM_ALERTS_ENABLED=true
 
-NEXT_PUBLIC_API_BASE_URL=http://91.218.230.151:8000
-GF_SERVER_ROOT_URL=http://91.218.230.151:3002
-GF_SECURITY_ADMIN_PASSWORD=xWRd2ttyUxdAC@
+NEXT_PUBLIC_API_BASE_URL=http://your_server_ip:8000
+GF_SERVER_ROOT_URL=http://your_server_ip:3002
+GF_SECURITY_ADMIN_PASSWORD=your_grafana_password
 ```
 
 ## 📝 License
