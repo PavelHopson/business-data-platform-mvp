@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     SHOW_ERROR_DETAILS: bool = True
 
-    FNS_API_KEY: str = "885e0911b1174c23550403f147ea98c84140193f"
+    FNS_API_KEY: str = ""
     FNS_API_BASE_URL: str = "https://api-fns.ru/api"
 
     TELEGRAM_BOT_TOKEN: str = ""

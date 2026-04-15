@@ -34,6 +34,9 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
+env.production
+*/env.production
+backend/python_app/env.production
 
 # .NET
 obj/

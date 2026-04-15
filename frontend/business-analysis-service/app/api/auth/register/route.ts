@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
     
-    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://91.218.230.151:8000';
+    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     const response = await fetch(`${backendUrl}/v1/auth/register`, {
       method: 'POST',
       headers: {

@@ -46,7 +46,7 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-devuser}:${POSTGRES_PASSWORD:-devpass}@postgres:5432/${POSTGRES_DB:-myapp_dev}
       REDIS_URL: redis://redis:6379/0
-      FNS_API_KEY: 885e0911b1174c23550403f147ea98c84140193f
+      FNS_API_KEY: ${FNS_API_KEY:?FNS_API_KEY is required — see .env.example}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       ENVIRONMENT: ${ENVIRONMENT:-development}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
@@ -71,7 +71,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-http://91.218.230.151:8000}
+      - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
       - NODE_ENV=${NODE_ENV:-production}
     depends_on:
       backend:
@@ -168,10 +168,10 @@ services:
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
     environment:
       - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:-xWRd2ttyUxdAC@}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:?GF_SECURITY_ADMIN_PASSWORD is required — see .env.example}
       - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-clock-panel
       - GF_FEATURE_TOGGLES_ENABLE=lokiExperiments
-      - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL:-http://91.218.230.151:3002}
+      - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL:-http://localhost:3002}
       - GF_USERS_ALLOW_SIGN_UP=${GF_USERS_ALLOW_SIGN_UP:-true}
     depends_on:
       - prometheus
@@ -252,11 +252,11 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-devuser}:${POSTGRES_PASSWORD:-devpass}@postgres:5432/${POSTGRES_DB:-myapp_dev}
       REDIS_URL: redis://redis:6379/0
-      FNS_API_KEY: ${FNS_API_KEY:-885e0911b1174c23550403f147ea98c84140193f}
+      FNS_API_KEY: ${FNS_API_KEY:?FNS_API_KEY is required — see .env.example}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       ENVIRONMENT: ${ENVIRONMENT:-development}
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-7900245095:AAGGV1LntnHPjuid26UCPGB0bmwW_-KwvsI}
-      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:--1003055636021}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
       TELEGRAM_ALERTS_ENABLED: ${TELEGRAM_ALERTS_ENABLED:-true}
       PROMETHEUS_METRICS_ENABLED: ${PROMETHEUS_METRICS_ENABLED:-true}
     volumes:

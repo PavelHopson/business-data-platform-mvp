@@ -67,7 +67,7 @@ const nextConfig = {
   generateEtags: false,
   
   env: {
-    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://91.218.230.151:8000',
+    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000',
   },
 };
 
