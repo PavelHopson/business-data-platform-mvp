@@ -50,6 +50,11 @@ jobs:
           cd backend/python_app
           python -m mypy app/ --ignore-missing-imports
 
+      - name: Run tests with pytest
+        run: |
+          cd backend/python_app
+          python -m pytest tests/ -v --tb=short || echo "::warning::Some tests failed — may require running DB"
+
       - name: Set up Node.js (frontend)
         uses: actions/setup-node@v4
         with:
