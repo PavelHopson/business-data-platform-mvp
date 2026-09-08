@@ -1,6 +1,46 @@
-# Business Analysis Platform
+# Business Data Platform
 
-Web application for comprehensive company analysis and verification.
+![Business Data Platform: Источники → ETL → Анализ](docs/assets/repository-cover.svg)
+
+**Data-платформа.** Прототип анализа компаний и наблюдения за ETL-процессами с отдельными backend и frontend.
+
+<!-- repository-guide:start -->
+[Первый запуск](#readme-start) · [Что внутри](#readme-map) · [Путеводитель](docs/repository-guide.md#start) · [Карта кода](docs/repository-guide.md#map) · [Проверки](docs/repository-guide.md#checks) · [Границы и права](docs/repository-guide.md#boundaries)
+
+<a id="readme-map"></a>
+
+## Проект за минуту
+
+- **[Backend и ETL](<backend/python_app>)** — Сервисная часть и обработка данных компаний.
+- **[Аналитический интерфейс](<frontend/business-analysis-service>)** — Отдельное клиентское приложение анализа компаний.
+- **[Наблюдаемость](<monitoring>)** — Конфигурации метрик, журналов и дашбордов.
+
+<a id="readme-start"></a>
+
+## Начать локально
+
+**Среда:** Node.js и npm. **Источник:** [frontend/business-analysis-service/package.json](<frontend/business-analysis-service/package.json>).
+
+Из корня клонированного репозитория:
+
+```bash
+cd frontend/business-analysis-service
+npm ci
+npm run dev
+```
+
+Это только Next.js frontend. Docker/ETL и мониторинг — отдельные процессы; не запускайте планировщик ради просмотра интерфейса.
+
+<details>
+<summary><strong>Перед первым запуском и изменением кода</strong></summary>
+
+- Команды сверены с исходниками 8 сентября 2026. Это инструкция, а не отметка об успешном запуске или текущем production.
+- Установка зависимостей может обращаться в registry и выполнять lifecycle scripts. Используйте отдельную рабочую среду и демонстрационные данные.
+- Данные компаний и права доступа оцениваются отдельно; demo-данные не следует смешивать с выгрузками реальных клиентов.
+
+
+</details>
+<!-- repository-guide:end -->
 
 ## 🚀 Quick Start
 
