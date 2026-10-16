@@ -1,5 +1,9 @@
 # Business Data Platform
 
+<!-- project-links:start -->
+[Документация](docs/repository-guide.md) · [Код](https://github.com/PavelHopson/business-data-platform-mvp/tree/main) · [История изменений](https://github.com/PavelHopson/business-data-platform-mvp/commits/main/)
+<!-- project-links:end -->
+
 ![Business Data Platform: Источники → ETL → Анализ](docs/assets/repository-cover.svg)
 
 **Data-платформа.** Прототип анализа компаний и наблюдения за ETL-процессами с отдельными backend и frontend.
@@ -42,14 +46,18 @@ npm run dev
 </details>
 <!-- repository-guide:end -->
 
-## 🚀 Quick Start
+<a id="-quick-start"></a>
+
+## Быстрый старт
 
 ```bash
 make init
 make etl-up
 ```
 
-## 📁 Project Structure
+<a id="-project-structure"></a>
+
+## Структура проекта
 
 ```
 ├── backend/          # FastAPI backend
@@ -149,7 +157,9 @@ TELEGRAM_ALERTS_ENABLED=true
 - **Ручной запуск**: GitHub Actions → "ETL CI/CD Pipeline"
 - **Health Check**: автоматическая проверка после деплоя
 
-## 🛠️ Environment Variables
+<a id="-environment-variables"></a>
+
+## Переменные окружения
 
 Create `.env` file with:
 
@@ -167,6 +177,8 @@ GF_SERVER_ROOT_URL=http://your_server_ip:3002
 GF_SECURITY_ADMIN_PASSWORD=your_grafana_password
 ```
 
-## 📝 License
+<a id="-license"></a>
+
+## Лицензия
 
 MIT
