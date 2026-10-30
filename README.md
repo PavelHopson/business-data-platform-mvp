@@ -13,7 +13,7 @@
 
 [Главная Eclipse Forge](https://eclipse-forge.ru/) · [Eclipse Library](https://library.eclipse-forge.ru/) · [Eclipse DnD Forge](https://dnd.eclipse-forge.ru/)
 
-Исходный код: [Eclipse Forge Landing](https://github.com/PavelHopson/Eclipse-forge-website) · [Eclipse Chat](https://github.com/PavelHopson/eclipse-chat) · [Eclipse Connect](https://github.com/PavelHopson/eclipse-connect) · [Eclipse Library](https://github.com/PavelHopson/eclipse-library) · [Eclipse AI Hub](https://github.com/PavelHopson/eclipse-ai-hub) · [Eclipse Ultron / Sentinel](https://github.com/PavelHopson/eclipse-hopson-sentinel) · [Eclipse Webclaw](https://github.com/PavelHopson/Eclipse-webclaw) · [Eclipse DnD Forge](https://github.com/PavelHopson/eclipse-dnd-forge) · [Finflow](https://github.com/PavelHopson/finflow) · [Eclipse Media](https://github.com/PavelHopson/eclipse-media) · [Shotforge](https://github.com/PavelHopson/shotforge) · [Text2Image](https://github.com/PavelHopson/Text2Image) · [Educator AI](https://github.com/PavelHopson/Educator-AI) · [@pavelhopson/retry-http](https://github.com/PavelHopson/retry-http)
+Исходный код: [Eclipse Forge Landing](https://github.com/PavelHopson/Eclipse-forge-website) · [Eclipse Chat](https://github.com/PavelHopson/eclipse-chat) · [Eclipse Library](https://github.com/PavelHopson/eclipse-library) · [Eclipse AI Hub](https://github.com/PavelHopson/eclipse-ai-hub) · [Eclipse Sentinel](https://github.com/PavelHopson/eclipse-hopson-sentinel) · [Eclipse Webclaw](https://github.com/PavelHopson/Eclipse-webclaw) · [Eclipse DnD Forge](https://github.com/PavelHopson/eclipse-dnd-forge) · [Finflow](https://github.com/PavelHopson/finflow) · [Eclipse Media](https://github.com/PavelHopson/eclipse-media) · [Shotforge](https://github.com/PavelHopson/shotforge) · [Text2Image](https://github.com/PavelHopson/Text2Image) · [Educator AI](https://github.com/PavelHopson/Educator-AI) · [@pavelhopson/retry-http](https://github.com/PavelHopson/retry-http)
 <!-- eclipse-forge-projects:end -->
 
 <!-- repository-guide:start -->
@@ -54,18 +54,14 @@ npm run dev
 </details>
 <!-- repository-guide:end -->
 
-<a id="-quick-start"></a>
-
-## Быстрый старт
+## 🚀 Quick Start
 
 ```bash
 make init
 make etl-up
 ```
 
-<a id="-project-structure"></a>
-
-## Структура проекта
+## 📁 Project Structure
 
 ```
 ├── backend/          # FastAPI backend
@@ -165,9 +161,7 @@ TELEGRAM_ALERTS_ENABLED=true
 - **Ручной запуск**: GitHub Actions → "ETL CI/CD Pipeline"
 - **Health Check**: автоматическая проверка после деплоя
 
-<a id="-environment-variables"></a>
-
-## Переменные окружения
+## 🛠️ Environment Variables
 
 Create `.env` file with:
 
@@ -185,8 +179,6 @@ GF_SERVER_ROOT_URL=http://your_server_ip:3002
 GF_SECURITY_ADMIN_PASSWORD=your_grafana_password
 ```
 
-<a id="-license"></a>
-
-## Лицензия
+## 📝 License
 
 MIT
